@@ -42,4 +42,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.stream.chat.android.ui.components)
+    implementation(libs.stream.chat.android.offline)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.material.v190)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.coil)
+
 }
