@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-kapt")
 }
 
 android {
@@ -43,11 +44,17 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    //Stream dependencies
     implementation(libs.stream.chat.android.ui.components)
     implementation(libs.stream.chat.android.offline)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.material.v190)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.coil)
+
+    //Dragger implementation
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+
 
 }
