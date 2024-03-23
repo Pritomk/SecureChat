@@ -71,32 +71,31 @@ class LoginDataSource {
         return future
     }
 
-    fun getToken(loggedInUser: LoggedInUser): CompletableFuture<Result<LoggedInUser>> {
-        val future = CompletableFuture<Result<LoggedInUser>>()
+    fun getToken(uid: String): CompletableFuture<Result<String>> {
+        val future = CompletableFuture<Result<String>>()
         try {
             coroutineScope.launch {
                 val jsonObject = JsonObject()
-                jsonObject.addProperty("uid", loggedInUser.userId)
-                val call = networkService.getToken(jsonObject)
+                jsonObject.addProperty("uid", uid)
 
-                call.enqueue(object : Callback<TokenResponse> {
-                    override fun onResponse(
-                        call: Call<TokenResponse>,
-                        response: Response<TokenResponse>
-                    ) {
-                        response.body()?.let {
-                            loggedInUser.token = it.token
-                            future.complete(Result.Success(loggedInUser))
-                        }
-                    }
+                val result = kotlin.runCatching {
+                    networkService.getToken(jsonObject)
+                }
 
-                    override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
-                        future.complete(Result.Error(IOException("Error to get token ${t.cause.toString()}")))
-                    }
-                })
+                if (result.isFailure) {
+                    future.complete(Result.Error(IOException("Error in token generation ", result.exceptionOrNull())))
+                    return@launch
+                }
+
+                val response = result.getOrNull()
+                if (response == null) {
+                    future.complete(Result.Error(IOException("Error in token generation ", result.exceptionOrNull())))
+                    return@launch
+                }
+                future.complete(Result.Success(response.token))
             }
         } catch(e: Exception) {
-            Log.d("pritom", "$e")
+            Log.e("pritom", "$e")
         }
         return future
     }

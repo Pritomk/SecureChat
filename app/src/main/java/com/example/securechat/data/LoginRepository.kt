@@ -54,7 +54,7 @@ class LoginRepository(val dataSource: LoginDataSource) {
         return result
     }
 
-    fun callTokenGeneration(loggedInUser: LoggedInUser): CompletableFuture<Result<LoggedInUser>> = dataSource.getToken(loggedInUser)
+    fun callTokenGeneration(uid: String): CompletableFuture<Result<String>> = dataSource.getToken(uid)
 
     private fun setLoggedInUser(loggedInUser: LoggedInUser) {
         this.user = loggedInUser

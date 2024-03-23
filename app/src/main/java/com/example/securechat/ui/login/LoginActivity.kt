@@ -14,10 +14,13 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
+import com.example.securechat.MainActivity
 import com.example.securechat.databinding.ActivityLoginBinding
 
 import com.example.securechat.R
+import com.example.securechat.data.model.LoggedInUser
 import com.example.securechat.utils.ActivityLauncher
+import com.example.securechat.utils.UserInfo
 
 class LoginActivity : AppCompatActivity() {
 
@@ -57,18 +60,22 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
-        loginViewModel.loginResult.observe(this@LoginActivity, Observer {
-            val loginResult = it ?: return@Observer
+        loginViewModel.loginResult.observe(this@LoginActivity) {
+            val loginResult = it ?: return@observe
 
-            loading.visibility = View.GONE
             if (loginResult.error != null) {
                 showLoginFailed(loginResult.error)
             }
             if (loginResult.success != null) {
-                updateUiWithUser(loginResult.success)
+                callTokenGeneration(loginResult.success)
                 setResult(Activity.RESULT_OK)
             }
-        })
+        }
+
+        loginViewModel.tokenResult.observe(this@LoginActivity) {
+            UserInfo(this).accessToken = it
+            updateUiWithUser()
+        }
 
         loginViewModel.authenticationType.observe(this@LoginActivity) {
             when (it) {
@@ -119,13 +126,18 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    private fun updateUiWithUser(model: LoggedInUserView) {
+    private fun callTokenGeneration(success: LoggedInUser) {
+        loginViewModel.handleTokenGeneration(this, success.userId);
+    }
+
+    private fun updateUiWithUser() {
+        binding.loading.visibility = View.GONE
         val welcome = getString(R.string.welcome)
-        val displayName = model.displayName
-        ActivityLauncher.launchMain(this@LoginActivity)
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
         Toast.makeText(
             applicationContext,
-            "$welcome $displayName",
+            "$welcome",
             Toast.LENGTH_LONG
         ).show()
     }

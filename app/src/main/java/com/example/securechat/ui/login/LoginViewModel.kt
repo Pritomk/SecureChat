@@ -1,7 +1,9 @@
 package com.example.securechat.ui.login
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.media.session.MediaSession.Token
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,6 +23,9 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
+
+    private val _tokenResult = MutableLiveData<String>()
+    val tokenResult: LiveData<String> = _tokenResult
 
     private val _authenticationType = MutableLiveData(
         AuthenticationState.LOGIN
@@ -45,15 +50,20 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
                 if (res is Result.Error) {
                     _loginResult.value = LoginResult(error = R.string.login_failed)
                 } else if (res is Result.Success) {
-                    loginRepository.callTokenGeneration(res.data).thenApply {tokenResult ->
-                        if (tokenResult is Result.Success) {
-                            UserInfo(context).accessToken = tokenResult.data.token
-                            _loginResult.value =
-                                LoginResult(success = LoggedInUserView(displayName = tokenResult.data.displayName))
-                        } else {
-                            _loginResult.value = LoginResult(error = R.string.token_failed)
-                        }
-                    }
+                    _loginResult.value =
+                        LoginResult(
+                            success = res.data
+                        )
+                }
+            }
+        }
+    }
+
+    fun handleTokenGeneration(activity: LoginActivity , uid: String) {
+        loginRepository.callTokenGeneration(uid).thenApply { tokenResult ->
+            if (tokenResult is Result.Success) {
+                activity.runOnUiThread {
+                    _tokenResult.value = tokenResult.data
                 }
             }
         }
