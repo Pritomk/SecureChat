@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="teal">#009688</color>
+    <color name="coral">#FF6F61</color>
+    <color name="indigo">#3F51B5</color>
+    <color name="magenta">#FF00FF</color>
+    <color name="mustard">#FFDB58</color>
+    <color name="black_figma">#121417</color>
+
 </resources>
