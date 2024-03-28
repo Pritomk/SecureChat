@@ -67,6 +67,8 @@ class LoginActivity : AppCompatActivity() {
                 showLoginFailed(loginResult.error)
             }
             if (loginResult.success != null) {
+                UserInfo(this@LoginActivity).userId = loginResult.success.userId
+                UserInfo(this@LoginActivity).displayName = loginResult.success.displayName
                 callTokenGeneration(loginResult.success)
                 setResult(Activity.RESULT_OK)
             }
