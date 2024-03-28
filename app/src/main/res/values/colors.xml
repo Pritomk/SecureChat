@@ -8,5 +8,7 @@
     <color name="magenta">#FF00FF</color>
     <color name="mustard">#FFDB58</color>
     <color name="black_figma">#121417</color>
+    <color name="grey_20">#cccccc</color>
+    <color name="grey_80">#37474F</color>
 
 </resources>

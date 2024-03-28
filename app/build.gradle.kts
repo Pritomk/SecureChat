@@ -79,5 +79,6 @@ dependencies {
     //Hunter
     implementation(libs.hunter.okhttp.library)
 
+    implementation(libs.zxing.android.embedded)
 
 }
