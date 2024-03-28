@@ -3,12 +3,14 @@ activityKtx = "1.8.2"
 agp = "8.3.0"
 coil = "2.4.0"
 coreSplashscreen = "1.0.1"
+hunterOkhttpLibrary = "1.2.3"
 kotlin = "1.9.0"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
+library = "3.5.2"
 lifecycleRuntimeKtx = "2.7.0"
 material = "1.10.0"
 activity = "1.8.0"
@@ -30,10 +32,13 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+hunter-okhttp-library = { module = "cn.quinnchen.hunter:hunter-okhttp-library", version.ref = "hunterOkhttpLibrary" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+library = { module = "com.github.chuckerteam.chucker:library", version.ref = "library" }
+library-no-op = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "library" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.securechat"
-        minSdk = 31
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -72,6 +72,12 @@ dependencies {
     implementation(libs.okhttp)
 
     implementation(libs.androidx.core.splashscreen)
+
+    //Chucker
+    debugImplementation(libs.library)
+    releaseImplementation(libs.library.no.op)
+    //Hunter
+    implementation(libs.hunter.okhttp.library)
 
 
 }
