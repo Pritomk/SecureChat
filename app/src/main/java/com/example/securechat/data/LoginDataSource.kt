@@ -31,7 +31,7 @@ class LoginDataSource {
     }
 
     private val networkService by lazy {
-        NetworkProvider.getRetrofitBuilder("https://encrypted-chat-server.onrender.com")!!.create(NetworkService::class.java)
+        NetworkProvider.getRetrofitBuilder("https://secure-chat-ccz5.onrender.com")!!.create(NetworkService::class.java)
     }
     fun login(username: String, password: String): CompletableFuture<Result<LoggedInUser>> {
         val future = CompletableFuture<Result<LoggedInUser>>()

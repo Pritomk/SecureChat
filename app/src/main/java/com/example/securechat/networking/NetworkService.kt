@@ -10,7 +10,7 @@ import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface NetworkService {
-    @POST("/api/chats")
+    @POST("/getToken")
     @Headers("Content-Type: application/json")
     suspend fun getToken(@Body jsonObject: JsonObject): TokenResponse
 }
