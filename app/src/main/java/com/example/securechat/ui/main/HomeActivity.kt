@@ -50,6 +50,7 @@ class HomeActivity : AppCompatActivity() {
         setUpViewModels()
         saveGeneratedQR()
         setUpFab()
+        setUpObserver()
     }
 
     private fun setUpViewModels() {
@@ -146,4 +147,23 @@ class HomeActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun createNewChannel(newUserUid: String) {
+        val myUid = UserInfo(this@HomeActivity).userId!!
+        viewModel.createChannel(myUid, newUserUid)
+    }
+
+
+    private fun setUpObserver() {
+        setUpAddedChannelObserver()
+    }
+
+    private fun setUpAddedChannelObserver() {
+        viewModel.channels.observe(this@HomeActivity) {
+            it?.let {
+
+            }
+        }
+    }
+
 }

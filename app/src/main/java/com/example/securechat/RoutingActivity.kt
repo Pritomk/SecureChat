@@ -1,15 +1,19 @@
 package com.example.securechat
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.securechat.utils.ActivityLauncher
 import com.example.securechat.utils.AppConstants
+import com.example.securechat.utils.ChatService
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.DialogHelper
 import com.example.securechat.utils.UserInfo
+import com.google.gson.Gson
 import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.token.TokenProvider
 import io.getstream.chat.android.models.User
 import io.getstream.result.Result
 
@@ -58,7 +62,7 @@ class RoutingActivity : AppCompatActivity() {
             extraData = userExtraData
         )
 
-        val client = ChatClient.Builder(AppConstants.API_KEY, this@RoutingActivity).build()
+        val client = ChatService.getChatClient()
 
         client.connectUser(user, accessToken).enqueue { result ->
             when (result) {
@@ -67,6 +71,7 @@ class RoutingActivity : AppCompatActivity() {
                 }
 
                 is Result.Success -> {
+                    Log.d("pritom", Gson().toJson(result.value))
                     UserInfo(this@RoutingActivity).chatUserDetails = result.value.user
                     ActivityLauncher.launchMain(this@RoutingActivity)
                     finish()
