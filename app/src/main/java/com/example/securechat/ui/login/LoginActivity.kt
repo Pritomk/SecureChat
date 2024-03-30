@@ -14,12 +14,11 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
-import com.example.securechat.MainActivity
+import com.example.securechat.ui.main.HomeActivity
 import com.example.securechat.databinding.ActivityLoginBinding
 
 import com.example.securechat.R
 import com.example.securechat.data.model.LoggedInUser
-import com.example.securechat.utils.ActivityLauncher
 import com.example.securechat.utils.UserInfo
 
 class LoginActivity : AppCompatActivity() {
@@ -135,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUiWithUser() {
         binding.loading.visibility = View.GONE
         val welcome = getString(R.string.welcome)
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this, HomeActivity::class.java))
         finish()
         Toast.makeText(
             applicationContext,

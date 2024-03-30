@@ -18,7 +18,7 @@
         tools:replace="android:appComponentFactory"
         android:appComponentFactory="android.support.v4.app.CoreComponentFactory">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.HomeActivity"
             android:exported="false" />
         <activity
             android:name=".ui.login.LoginActivity"

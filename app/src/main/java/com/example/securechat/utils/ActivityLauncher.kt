@@ -1,7 +1,7 @@
 package com.example.securechat.utils
 
 import android.content.Context
-import com.example.securechat.MainActivity
+import com.example.securechat.ui.main.HomeActivity
 import com.example.securechat.ui.login.LoginActivity
 
 object ActivityLauncher {
@@ -11,6 +11,6 @@ object ActivityLauncher {
     }
 
     fun launchMain(context: Context) {
-        MainActivity().open(context)
+        HomeActivity().open(context)
     }
 }
