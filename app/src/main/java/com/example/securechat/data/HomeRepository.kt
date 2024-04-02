@@ -14,4 +14,8 @@ class HomeRepository(
     fun createChannel(myUid: String, newUserUid: String): CompletableFuture<Result<Channel>> {
         return dataSource.createChannel(myUid, newUserUid)
     }
+
+    fun getExistingChannels(myUid: String, pageIndex: Int): CompletableFuture<Result<List<Channel>>> {
+        return dataSource.getChannels(myUid, pageIndex)
+    }
 }

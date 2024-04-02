@@ -1,6 +1,7 @@
 package com.example.securechat.ui.main
 
 import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -20,10 +21,13 @@ class HomeViewModel(
 ): ViewModel() {
 
     private val _qrCode = MutableLiveData<Bitmap>()
-    val qrCode = _qrCode
+    val qrCode: LiveData<Bitmap> = _qrCode
 
-    private val _channels = MutableLiveData<Channel>()
-    val channels = _channels
+    private val _channels = MutableLiveData<List<Channel>>()
+    val channels: LiveData<List<Channel>> = _channels
+
+    private val _newChannel = MutableLiveData<Channel>()
+    val newChannel: LiveData<Channel> = _newChannel
     companion object {
         fun provideViewModelFactory(runOnUiThread: KFunction1<Runnable, Unit>) = viewModelFactory {
             initializer {
@@ -54,6 +58,17 @@ class HomeViewModel(
 
     fun createChannel(myUid: String, newUserUid: String) {
         homeRepository.createChannel(myUid, newUserUid).thenAccept { result ->
+            when (result) {
+                is Result.Error -> TODO()
+                is Result.Success -> {
+                    _newChannel.value = result.data
+                }
+            }
+        }
+    }
+
+    fun getExistingChannels(uid: String, pageIndex: Int) {
+        homeRepository.getExistingChannels(uid, pageIndex).thenAccept { result ->
             when (result) {
                 is Result.Error -> TODO()
                 is Result.Success -> {

@@ -32,7 +32,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     )
     val authenticationType = _authenticationType;
 
-    fun authenticate(context: Context, username: String, password: String) {
+    fun authenticate(context: Context, username: String, password: String, name: String?) {
         // can be launched in a separate asynchronous job
         var result: CompletableFuture<Result<LoggedInUser>>
         authenticationType.value?.let {
@@ -42,7 +42,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
                 }
 
                 AuthenticationState.REGISTER -> {
-                    loginRepository.register(username, password)
+                    loginRepository.register(username, password, name!!)
                 }
             }
 
@@ -69,11 +69,13 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         }
     }
 
-    fun loginDataChanged(username: String, password: String) {
+    fun loginDataChanged(username: String, password: String, name: String) {
         if (!isUserNameValid(username)) {
             _loginForm.value = LoginFormState(usernameError = R.string.invalid_username)
         } else if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
+        } else if (name.isBlank()) {
+            _loginForm.value = LoginFormState(nameError = R.string.invalid_name)
         } else {
             _loginForm.value = LoginFormState(isDataValid = true)
         }

@@ -9,8 +9,11 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.journeyapps.barcodescanner.BarcodeEncoder
+import io.getstream.chat.android.client.api.models.QueryChannelsRequest
 import io.getstream.chat.android.models.Channel
+import io.getstream.chat.android.models.Filters
 import io.getstream.chat.android.models.Member
+import io.getstream.chat.android.models.querysort.QuerySortByField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,6 +64,37 @@ class HomeDataSource(
                 }
             }
 
+        }
+        return future
+    }
+
+    fun getChannels(myUid: String, pageIndex: Int): CompletableFuture<Result<List<Channel>>> {
+        val future = CompletableFuture<Result<List<Channel>>>()
+        coroutineScope.launch {
+            val request = QueryChannelsRequest(
+                filter = Filters.and(
+                    Filters.eq("type", "messaging"),
+                    Filters.`in`("members", listOf(myUid)),
+                ),
+                offset = 0,
+                limit = 10,
+                querySort = QuerySortByField.descByName("has_unread")
+            ).apply {
+                watch = true
+                state = true
+            }
+            val chatClient = ChatService.getChatClient()
+            chatClient.queryChannels(request).enqueue { result ->
+                if (result.isSuccess) {
+                    val channels: List<Channel>? = result.getOrNull()
+                    channels?.let {
+                        future.complete(Result.Success(channels))
+                    }
+                    Log.d(TAG, "$channels")
+                } else {
+                    future.complete(Result.Error(Exception(result.errorOrNull()?.message)))
+                }
+            }
         }
         return future
     }

@@ -1,10 +1,13 @@
 package com.example.securechat.data
 
+import android.net.Uri
 import android.util.Log
 import com.example.securechat.data.model.LoggedInUser
 import com.example.securechat.networking.NetworkProvider
 import com.example.securechat.networking.NetworkService
 import com.example.securechat.networking.response.TokenResponse
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -39,8 +42,10 @@ class LoginDataSource {
             coroutineScope.launch {
                 Firebase.auth.signInWithEmailAndPassword(username, password).addOnSuccessListener {
                     it?.user?.let {user ->
-                        val loggedInUser = LoggedInUser(user.uid, "Default User")
-                        future.complete(Result.Success(loggedInUser))
+                        user.displayName?.let { name ->
+                            val loggedInUser = LoggedInUser(user.uid, name)
+                            future.complete(Result.Success(loggedInUser))
+                        }
                     }
                 }.addOnFailureListener {
                     future.complete(Result.Error(IOException("Error logging in", it)))
@@ -52,14 +57,13 @@ class LoginDataSource {
         return future
     }
 
-    fun register(username: String, password: String): CompletableFuture<Result<LoggedInUser>> {
+    fun register(username: String, password: String, name: String): CompletableFuture<Result<LoggedInUser>> {
         val future = CompletableFuture<Result<LoggedInUser>>()
         try {
             coroutineScope.launch {
                 Firebase.auth.createUserWithEmailAndPassword(username, password).addOnSuccessListener {
                     it?.user?.let {user ->
-                        val loggedInUser = LoggedInUser(user.uid, "Default User")
-                        future.complete(Result.Success(loggedInUser))
+                        setUserName(name, user, future)
                     }
                 }.addOnFailureListener {
                     future.complete(Result.Error(IOException("Error logging in", it)))
@@ -69,6 +73,22 @@ class LoginDataSource {
             future.complete(Result.Error(IOException("Error logging in", e)))
         }
         return future
+    }
+
+    private fun setUserName(name: String, user: FirebaseUser, future: CompletableFuture<Result<LoggedInUser>>) {
+        val loggedInUser = LoggedInUser(
+            userId = user.uid,
+            displayName = name
+        )
+        val profileUpdate = UserProfileChangeRequest.Builder()
+            .setPhotoUri(Uri.parse("https://random.imagecdn.app/60/60"))
+            .setDisplayName(name)
+            .build()
+        user.updateProfile(profileUpdate).addOnSuccessListener {
+            future.complete(Result.Success(loggedInUser))
+        }.addOnFailureListener {
+            future.complete(Result.Error(IOException("Update profile error", it)))
+        }
     }
 
     fun getToken(uid: String): CompletableFuture<Result<String>> {

@@ -81,4 +81,6 @@ dependencies {
 
     implementation(libs.zxing.android.embedded)
 
+    implementation(libs.material.v130alpha03)
+
 }

@@ -13,27 +13,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.securechat.R
 import com.example.securechat.data.model.QrResponse
-import com.example.securechat.databinding.ActivityMainBinding
-import com.example.securechat.utils.ChatService
+import com.example.securechat.databinding.ActivityHomeBinding
 import com.example.securechat.utils.UserInfo
 import com.example.securechat.utils.ViewAnimations
 import com.google.gson.Gson
-import com.google.gson.JsonObject
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.WriterException
 import com.google.zxing.integration.android.IntentIntegrator
-import com.journeyapps.barcodescanner.BarcodeEncoder
-import io.getstream.chat.android.client.ChatClient
-import io.getstream.chat.android.models.Channel
-import io.getstream.chat.android.models.Message
-import io.getstream.result.Result
-import io.getstream.result.call.Call
 
 
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityHomeBinding
     private var isRotate: Boolean = false
     private lateinit var viewModel: HomeViewModel
 
@@ -44,7 +33,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setUpViewModels()
@@ -155,11 +144,20 @@ class HomeActivity : AppCompatActivity() {
 
 
     private fun setUpObserver() {
+        setUpExistingChannelObserver()
         setUpAddedChannelObserver()
     }
 
-    private fun setUpAddedChannelObserver() {
+    private fun setUpExistingChannelObserver() {
+        val uid = UserInfo(this@HomeActivity).userId!!
         viewModel.channels.observe(this@HomeActivity) {
+
+        }
+        viewModel.getExistingChannels(uid, 0)
+    }
+
+    private fun setUpAddedChannelObserver() {
+        viewModel.newChannel.observe(this@HomeActivity) {
             it?.let {
 
             }

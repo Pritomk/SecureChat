@@ -1,23 +1,26 @@
 package com.example.securechat
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.securechat.utils.ActivityLauncher
-import com.example.securechat.utils.AppConstants
 import com.example.securechat.utils.ChatService
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.DialogHelper
 import com.example.securechat.utils.UserInfo
 import com.google.gson.Gson
-import io.getstream.chat.android.client.ChatClient
-import io.getstream.chat.android.client.token.TokenProvider
 import io.getstream.chat.android.models.User
 import io.getstream.result.Result
 
 class RoutingActivity : AppCompatActivity() {
+    fun open(context: Context) {
+        val intent = Intent(context, RoutingActivity::class.java)
+        context.startActivity(intent)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -55,7 +58,8 @@ class RoutingActivity : AppCompatActivity() {
             sendToLogin()
         }
         val userExtraData: Map<String, Any> = mutableMapOf(
-            "name" to userName
+            "name" to userName,
+            "image" to "https://random.imagecdn.app/60/60",
         )
         val user = User(
             id = userId,
@@ -73,7 +77,7 @@ class RoutingActivity : AppCompatActivity() {
                 is Result.Success -> {
                     Log.d("pritom", Gson().toJson(result.value))
                     UserInfo(this@RoutingActivity).chatUserDetails = result.value.user
-                    ActivityLauncher.launchMain(this@RoutingActivity)
+                    ActivityLauncher.launchHome(this@RoutingActivity)
                     finish()
                 }
             }

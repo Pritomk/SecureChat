@@ -1,6 +1,7 @@
 package com.example.securechat.utils
 
 import android.content.Context
+import com.example.securechat.RoutingActivity
 import com.example.securechat.ui.main.HomeActivity
 import com.example.securechat.ui.login.LoginActivity
 
@@ -10,7 +11,11 @@ object ActivityLauncher {
         LoginActivity().open(context)
     }
 
-    fun launchMain(context: Context) {
+    fun launchHome(context: Context) {
         HomeActivity().open(context)
+    }
+
+    fun launchRoute(context: Context) {
+        RoutingActivity().open(context)
     }
 }

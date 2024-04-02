@@ -41,9 +41,9 @@ class LoginRepository(val dataSource: LoginDataSource) {
         return result
     }
 
-    fun register(username: String, password: String): CompletableFuture<Result<LoggedInUser>> {
+    fun register(username: String, password: String, name: String): CompletableFuture<Result<LoggedInUser>> {
         // handle login
-        val result = dataSource.register(username, password)
+        val result = dataSource.register(username, password, name)
 
         result.thenApply {
             if (it is Result.Success) {

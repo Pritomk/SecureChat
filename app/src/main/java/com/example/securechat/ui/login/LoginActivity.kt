@@ -18,6 +18,7 @@ import com.example.securechat.ui.main.HomeActivity
 import com.example.securechat.databinding.ActivityLoginBinding
 
 import com.example.securechat.R
+import com.example.securechat.RoutingActivity
 import com.example.securechat.data.model.LoggedInUser
 import com.example.securechat.utils.UserInfo
 
@@ -42,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
         val login = binding.login
         val loading = binding.loading
         val changeTv = binding.changeTv
+        val name = binding.name!!
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory())[LoginViewModel::class.java]
 
@@ -56,6 +58,11 @@ class LoginActivity : AppCompatActivity() {
             }
             if (loginState.passwordError != null) {
                 password.error = getString(loginState.passwordError)
+            }
+            if (login.text.toString().equals(getString(R.string.action_sign_up_short), ignoreCase = true)) {
+                if (loginState.nameError != null) {
+                    name.error = getString(loginState.nameError)
+                }
             }
         })
 
@@ -83,10 +90,12 @@ class LoginActivity : AppCompatActivity() {
                 AuthenticationState.LOGIN -> {
                     login.text = resources.getText(R.string.action_sign_in_short)
                     changeTv?.text = resources.getText(R.string.register_now)
+                    name.visibility = View.GONE
                 }
                 AuthenticationState.REGISTER -> {
                     login.text = resources.getText(R.string.action_sign_up_short)
                     changeTv?.text = resources.getText(R.string.login_now)
+                    name.visibility = View.VISIBLE
                 }
                 null -> TODO("Handle null scenario for authentication state")
             }
@@ -95,7 +104,8 @@ class LoginActivity : AppCompatActivity() {
         username.afterTextChanged {
             loginViewModel.loginDataChanged(
                 username.text.toString(),
-                password.text.toString()
+                password.text.toString(),
+                name.text.toString()
             )
         }
 
@@ -103,21 +113,22 @@ class LoginActivity : AppCompatActivity() {
             afterTextChanged {
                 loginViewModel.loginDataChanged(
                     username.text.toString(),
-                    password.text.toString()
+                    password.text.toString(),
+                    name.text.toString()
                 )
             }
 
             setOnEditorActionListener { _, actionId, _ ->
                 when (actionId) {
                     EditorInfo.IME_ACTION_DONE ->
-                        loginViewModel.authenticate(this@LoginActivity, username.text.toString(), password.text.toString())
+                        loginViewModel.authenticate(this@LoginActivity, username.text.toString(), password.text.toString(), name.text?.toString())
                 }
                 false
             }
 
             login.setOnClickListener {
                 loading.visibility = View.VISIBLE
-                loginViewModel.authenticate(this@LoginActivity, username.text.toString(), password.text.toString())
+                loginViewModel.authenticate(this@LoginActivity, username.text.toString(), password.text.toString(), name.text?.toString())
             }
         }
 
@@ -134,7 +145,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUiWithUser() {
         binding.loading.visibility = View.GONE
         val welcome = getString(R.string.welcome)
-        startActivity(Intent(this, HomeActivity::class.java))
+        startActivity(Intent(this, RoutingActivity::class.java))
         finish()
         Toast.makeText(
             applicationContext,
