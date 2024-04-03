@@ -1,6 +1,7 @@
 package com.example.securechat.data
 
 import android.graphics.Bitmap
+import com.example.securechat.data.model.ChannelGist
 import io.getstream.chat.android.models.Channel
 import java.util.concurrent.CompletableFuture
 
@@ -11,11 +12,11 @@ class HomeRepository(
         return dataSource.generateQrCode(uid)
     }
 
-    fun createChannel(myUid: String, newUserUid: String): CompletableFuture<Result<Channel>> {
+    fun createChannel(myUid: String, newUserUid: String): CompletableFuture<Result<ChannelGist>> {
         return dataSource.createChannel(myUid, newUserUid)
     }
 
-    fun getExistingChannels(myUid: String, pageIndex: Int): CompletableFuture<Result<List<Channel>>> {
+    fun getExistingChannels(myUid: String, pageIndex: Int): CompletableFuture<Result<List<ChannelGist>>> {
         return dataSource.getChannels(myUid, pageIndex)
     }
 }

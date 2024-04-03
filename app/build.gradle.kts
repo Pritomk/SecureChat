@@ -83,4 +83,7 @@ dependencies {
 
     implementation(libs.material.v130alpha03)
 
+    implementation(libs.circleimageview)
+
+    implementation(libs.glide)
 }

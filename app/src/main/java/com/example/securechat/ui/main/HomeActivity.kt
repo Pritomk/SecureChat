@@ -7,24 +7,34 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.securechat.R
+import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.data.model.QrResponse
 import com.example.securechat.databinding.ActivityHomeBinding
+import com.example.securechat.listeners.ContactClicked
+import com.example.securechat.utils.ActivityLauncher
+import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.UserInfo
 import com.example.securechat.utils.ViewAnimations
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import com.google.zxing.integration.android.IntentIntegrator
 
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), ContactClicked {
 
     private lateinit var binding: ActivityHomeBinding
     private var isRotate: Boolean = false
     private lateinit var viewModel: HomeViewModel
+    private lateinit var adapter: ContactsAdapter
 
     fun open(context: Context) {
         val intent = Intent(context, HomeActivity::class.java)
@@ -32,14 +42,23 @@ class HomeActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setUpViewModels()
         saveGeneratedQR()
         setUpFab()
+        setUpChannelsRV()
         setUpObserver()
+        setUpLogoutBtn()
+    }
+
+    private fun setUpChannelsRV() {
+        adapter = ContactsAdapter(this@HomeActivity, this)
+        val layoutManager = LinearLayoutManager(this@HomeActivity)
+        binding.contactsRv.layoutManager = layoutManager
+        binding.contactsRv.adapter = adapter
+        binding.contactsRv.setHasFixedSize(true)
     }
 
     private fun setUpViewModels() {
@@ -151,7 +170,9 @@ class HomeActivity : AppCompatActivity() {
     private fun setUpExistingChannelObserver() {
         val uid = UserInfo(this@HomeActivity).userId!!
         viewModel.channels.observe(this@HomeActivity) {
-
+            if (::adapter.isInitialized) {
+                adapter.updateData(it)
+            }
         }
         viewModel.getExistingChannels(uid, 0)
     }
@@ -159,9 +180,21 @@ class HomeActivity : AppCompatActivity() {
     private fun setUpAddedChannelObserver() {
         viewModel.newChannel.observe(this@HomeActivity) {
             it?.let {
-
+                adapter.addToInitial(it)
             }
         }
+    }
+
+    private fun setUpLogoutBtn() {
+        binding.signout.setOnClickListener {
+            Firebase.auth.signOut()
+            CommonMethods(this@HomeActivity).removePreferences()
+            ActivityLauncher.launchRoute(this@HomeActivity)
+        }
+    }
+
+    override fun contactClicked(channelGist: ChannelGist) {
+
     }
 
 }

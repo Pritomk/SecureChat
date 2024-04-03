@@ -18,4 +18,5 @@
     <string name="no_internet_msg">Internet not available</string>
     <string name="my_qr">My QR</string>
     <string name="scan">Scan</string>
+    <string name="message_text">Message</string>
 </resources>

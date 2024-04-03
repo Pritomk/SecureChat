@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.securechat.data.HomeDataSource
 import com.example.securechat.data.HomeRepository
 import com.example.securechat.data.Result
+import com.example.securechat.data.model.ChannelGist
 import io.getstream.chat.android.models.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,11 +24,11 @@ class HomeViewModel(
     private val _qrCode = MutableLiveData<Bitmap>()
     val qrCode: LiveData<Bitmap> = _qrCode
 
-    private val _channels = MutableLiveData<List<Channel>>()
-    val channels: LiveData<List<Channel>> = _channels
+    private val _channels = MutableLiveData<List<ChannelGist>>()
+    val channels: LiveData<List<ChannelGist>> = _channels
 
-    private val _newChannel = MutableLiveData<Channel>()
-    val newChannel: LiveData<Channel> = _newChannel
+    private val _newChannel = MutableLiveData<ChannelGist>()
+    val newChannel: LiveData<ChannelGist> = _newChannel
     companion object {
         fun provideViewModelFactory(runOnUiThread: KFunction1<Runnable, Unit>) = viewModelFactory {
             initializer {
