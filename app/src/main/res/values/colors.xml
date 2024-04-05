@@ -2,7 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_white">#CDFFFFFF</color>
     <color name="teal">#009688</color>
+    <color name="light_green">#31A345</color>
     <color name="coral">#FF6F61</color>
     <color name="indigo">#3F51B5</color>
     <color name="magenta">#FF00FF</color>
@@ -10,5 +12,11 @@
     <color name="black_figma">#121417</color>
     <color name="grey_20">#cccccc</color>
     <color name="grey_80">#37474F</color>
+    <color name="grey_10">#387B7B7B</color>
+    <color name="grey_5">#26E3E3E3</color>
+    <color name="blue_grad">#4b6cb7</color>
+    <color name="dark_blue_grad">#182848</color>
+    <color name="mystic_dark">#757F9A</color>
+    <color name="mystic_light">#D7DDE8</color>
 
 </resources>
