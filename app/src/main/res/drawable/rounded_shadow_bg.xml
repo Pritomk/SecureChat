@@ -10,8 +10,6 @@
     </item>
 
     <item
-        android:left="2dp"
-        android:right="2dp"
         android:top="0dp"
         android:bottom="3dp">
         <shape android:shape="rectangle">

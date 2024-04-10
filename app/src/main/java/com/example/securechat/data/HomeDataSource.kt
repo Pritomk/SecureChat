@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.utils.ChatService
-import com.example.securechat.utils.CommonMethods
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.zxing.BarcodeFormat
@@ -14,7 +13,6 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 import io.getstream.chat.android.client.api.models.QueryChannelsRequest
 import io.getstream.chat.android.models.Channel
 import io.getstream.chat.android.models.Filters
-import io.getstream.chat.android.models.Member
 import io.getstream.chat.android.models.querysort.QuerySortByField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -115,9 +113,8 @@ class HomeDataSource(
 
     private fun getChannelGistFromChannel(channel: Channel): ChannelGist {
         val name = channel.members[0].user.name
-        val image = channel.members[0].user.image
         val userId = channel.members[0].user.id
         val channelId = channel.id
-        return ChannelGist(channelId, userId, name, image)
+        return ChannelGist(channelId, userId, name)
     }
 }

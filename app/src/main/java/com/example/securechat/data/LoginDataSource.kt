@@ -5,24 +5,16 @@ import android.util.Log
 import com.example.securechat.data.model.LoggedInUser
 import com.example.securechat.networking.NetworkProvider
 import com.example.securechat.networking.NetworkService
-import com.example.securechat.networking.response.TokenResponse
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.JsonObject
-import io.getstream.chat.android.ui.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import retrofit2.Call
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.

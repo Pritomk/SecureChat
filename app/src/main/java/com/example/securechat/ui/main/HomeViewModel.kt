@@ -10,14 +10,10 @@ import com.example.securechat.data.HomeDataSource
 import com.example.securechat.data.HomeRepository
 import com.example.securechat.data.Result
 import com.example.securechat.data.model.ChannelGist
-import io.getstream.chat.android.models.Channel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlin.reflect.KFunction1
 
 class HomeViewModel(
     private val homeRepository: HomeRepository,
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO),
     private val runOnUiThread: KFunction1<Runnable, Unit>
 ): ViewModel() {
 

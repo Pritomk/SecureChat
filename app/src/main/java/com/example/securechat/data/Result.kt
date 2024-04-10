@@ -1,5 +1,7 @@
 package com.example.securechat.data
 
+import io.getstream.chat.android.models.Message
+
 /**
  * A generic class that holds a value with its loading status.
  * @param <T>

@@ -18,5 +18,7 @@
     <string name="no_internet_msg">Internet not available</string>
     <string name="my_qr">My QR</string>
     <string name="scan">Scan</string>
+    <string name="empty_text_error">Can\'t send empty text</string>
     <string name="message_text">Message</string>
+    <string name="image_cancel_consent">Sure! You want to cancel</string>
 </resources>

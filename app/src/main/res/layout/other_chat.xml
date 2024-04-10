@@ -5,28 +5,47 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="@drawable/chat_left_start_bg"
-        android:layout_gravity="start"
-        android:layout_margin="8dp"
-        android:padding="16dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/chat_left_start_bg"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:layout_alignParentStart="true">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/chat_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="280dp"
+                app:fontFamily="@font/inter_medium"
+                tools:text="zindagi"
+                android:textSize="18sp"
+                android:maxLines="5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/chat_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="90dp"
             app:fontFamily="@font/inter_medium"
-            tools:text="zindagi"
-            android:textSize="18sp"
+            tools:text="0:00pm"
+            android:textSize="12sp"
             android:maxLines="5"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:textColor="@color/white"/>
+            android:layout_marginEnd="4dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+    </RelativeLayout>
 
 </FrameLayout>

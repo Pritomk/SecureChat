@@ -74,8 +74,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
             _loginForm.value = LoginFormState(usernameError = R.string.invalid_username)
         } else if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
-        } else if (name.isBlank()) {
-            _loginForm.value = LoginFormState(nameError = R.string.invalid_name)
         } else {
             _loginForm.value = LoginFormState(isDataValid = true)
         }

@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,15 +16,16 @@ import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.data.model.QrResponse
 import com.example.securechat.databinding.ActivityHomeBinding
 import com.example.securechat.listeners.ContactClicked
+import com.example.securechat.ui.chat.ChatActivity
 import com.example.securechat.utils.ActivityLauncher
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.UserInfo
 import com.example.securechat.utils.ViewAnimations
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import com.google.zxing.integration.android.IntentIntegrator
+import io.getstream.chat.android.ui.feature.messages.MessageListActivity
 
 
 class HomeActivity : AppCompatActivity(), ContactClicked {
@@ -40,6 +39,7 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
         val intent = Intent(context, HomeActivity::class.java)
         context.startActivity(intent)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -62,7 +62,10 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
     }
 
     private fun setUpViewModels() {
-        viewModel = ViewModelProvider(this@HomeActivity, HomeViewModel.provideViewModelFactory(::runOnUiThread))[HomeViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this@HomeActivity,
+            HomeViewModel.provideViewModelFactory(::runOnUiThread)
+        )[HomeViewModel::class.java]
     }
 
 
@@ -84,7 +87,7 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
 
     private fun saveGeneratedQR() {
         val uid = UserInfo(this@HomeActivity).userId
-        viewModel.qrCode.observe(this) {bitmap ->
+        viewModel.qrCode.observe(this) { bitmap ->
             bitmap?.let {
                 UserInfo(this@HomeActivity).myQrCode = it
             }
@@ -133,6 +136,7 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
             e.printStackTrace()
         }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -194,7 +198,7 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
     }
 
     override fun contactClicked(channelGist: ChannelGist) {
-
+        ActivityLauncher.launchChat(this@HomeActivity, channelGist)
     }
 
 }

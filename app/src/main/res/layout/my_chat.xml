@@ -5,26 +5,49 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="@drawable/chat_right_start_bg"
-        android:layout_gravity="end"
-        android:layout_margin="8dp"
-        android:padding="16dp">
 
-        <androidx.appcompat.widget.AppCompatTextView
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fontFamily="@font/inter_medium"
-            tools:text="zindagi"
-            android:textSize="18sp"
-            android:maxLines="5"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:background="@drawable/chat_right_start_bg"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:layout_alignParentEnd="true">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/chat_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="280dp"
+                app:fontFamily="@font/inter_medium"
+                tools:text="zindagi"
+                android:textSize="18sp"
+                android:maxLines="5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/chat_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="90dp"
+            app:fontFamily="@font/inter_medium"
+            tools:text="0:00pm"
+            android:textSize="12sp"
+            android:maxLines="5"
+            android:layout_marginStart="4dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"/>
+
+    </RelativeLayout>
 
 
 

@@ -3,6 +3,7 @@ package com.example.securechat.utils
 import android.content.Context
 import com.example.securechat.ApplicationMain
 import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.channel.ChannelClient
 import io.getstream.chat.android.client.logger.ChatLogLevel
 import io.getstream.chat.android.offline.plugin.factory.StreamOfflinePluginFactory
 import io.getstream.chat.android.state.plugin.config.StatePluginConfig
@@ -31,5 +32,9 @@ object ChatService {
                 .build()
         }
         return chatClient
+    }
+
+    fun getChannelClient(channelId: String) : ChannelClient {
+        return getChatClient().channel("messaging", channelId)
     }
 }
