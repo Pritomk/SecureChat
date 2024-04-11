@@ -13,6 +13,11 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING
 import com.bumptech.glide.Glide
 import com.example.securechat.R
 import com.example.securechat.data.model.ChannelGist
@@ -109,6 +114,9 @@ class ChatActivity : AppCompatActivity() {
         viewModel.messages.observe(this@ChatActivity) {
             it?.let { messages ->
                 chatAdapter.updateMessageList(messages)
+                if (messages.isNotEmpty() && chatAdapter.itemCount <= 20) {
+                    binding.chatListRv.scrollToPosition(0)
+                }
             }
         }
         viewModel.getAllMessages(null)
@@ -126,18 +134,26 @@ class ChatActivity : AppCompatActivity() {
         chatAdapter = ChatListAdapter(this@ChatActivity)
         binding.chatListRv.adapter = chatAdapter
         binding.chatListRv.layoutManager = layoutManager
-        binding.chatListRv.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-            val visibleItemCount = layoutManager.childCount
-            val totalItemCount = layoutManager.itemCount
-            val firstVisibleItemCount = layoutManager.findFirstVisibleItemPosition()
+        binding.chatListRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
 
-            if (visibleItemCount + firstVisibleItemCount >= totalItemCount && totalItemCount > 0) {
-                val lastItem = chatAdapter.getLastItem()
-                lastItem?.let {
-                    loadMoreData(lastItem.id)
+                when (newState) {
+                    SCROLL_STATE_SETTLING -> {
+                        val visibleItemCount = layoutManager.childCount
+                        val totalItemCount = layoutManager.itemCount
+                        val firstVisibleItemCount = layoutManager.findFirstVisibleItemPosition()
+
+                        if (visibleItemCount + firstVisibleItemCount + 5 >= totalItemCount && totalItemCount > 0) {
+                            val lastItem = chatAdapter.getLastItem()
+                            lastItem?.let {
+                                loadMoreData(it.id)
+                            }
+                        }
+                    }
                 }
             }
-        }
+        })
     }
 
     private fun setUpSendBtn() {

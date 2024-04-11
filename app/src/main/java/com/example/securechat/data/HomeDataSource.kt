@@ -59,7 +59,9 @@ class HomeDataSource(
                 if (it.isSuccess) {
                     Log.d(TAG, "Success" + Gson().toJson(it.getOrNull()))
                     it.getOrNull()?.let {channel ->
-                        future.complete(Result.Success(getChannelGistFromChannel(channel)))
+                        getChannelGistFromChannel(channel, myUid)?.let {gist ->
+                            future.complete(Result.Success(gist))
+                        }
                     }
                 }
             }
@@ -88,7 +90,7 @@ class HomeDataSource(
                 if (result.isSuccess) {
                     val channels: List<Channel>? = result.getOrNull()
                     channels?.let {
-                        val channelGists = channels.getOnlyChannelGist()
+                        val channelGists = channels.getOnlyChannelGist(myUid)
                         future.complete(Result.Success(channelGists))
                     }
                     val channelSTr = Gson().toJson(channels)
@@ -103,18 +105,25 @@ class HomeDataSource(
         return future
     }
 
-    private fun List<Channel>.getOnlyChannelGist(): List<ChannelGist> {
+    private fun List<Channel>.getOnlyChannelGist(myUid: String): List<ChannelGist> {
         val channelGists = ArrayList<ChannelGist>()
         this.forEach {
-            channelGists.add(getChannelGistFromChannel(it))
+            getChannelGistFromChannel(it, myUid)?.let {gist ->
+                channelGists.add(gist)
+            }
         }
         return channelGists
     }
 
-    private fun getChannelGistFromChannel(channel: Channel): ChannelGist {
-        val name = channel.members[0].user.name
-        val userId = channel.members[0].user.id
-        val channelId = channel.id
-        return ChannelGist(channelId, userId, name)
+    private fun getChannelGistFromChannel(channel: Channel, myUid: String): ChannelGist? {
+        val other = channel.members.singleOrNull {
+            it.user.id != myUid
+        }
+        return other?.let {
+            val name = other.user.name
+            val userId = other.user.id
+            val channelId = channel.id
+            ChannelGist(channelId, userId, name)
+        }
     }
 }

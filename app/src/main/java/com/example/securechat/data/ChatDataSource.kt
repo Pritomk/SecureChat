@@ -76,7 +76,7 @@ class ChatDataSource(
                     .withMessages(pageSize)
             } else {
                 QueryChannelRequest()
-                    .withMessages(Pagination.GREATER_THAN, lastMsgId, pageSize)
+                    .withMessages(Pagination.LESS_THAN, lastMsgId, pageSize)
             }
             channelClient?.query(request)?.enqueue { result ->
                 if (result.isSuccess) {
