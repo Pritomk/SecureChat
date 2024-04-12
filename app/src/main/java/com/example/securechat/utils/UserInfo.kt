@@ -15,6 +15,7 @@ class UserInfo(context: Context): SharedPreferencesHelper(context) {
     private val DISPLAY_NAME = "display_name"
     private val CHAT_USER = "chat_user"
     private val MY_QR = "my_qr"
+    private val BIOMETRIC_LOCK = "biometric_lock"
     var accessToken: String?
         set(value) {
             if (value != null) {
@@ -62,4 +63,12 @@ class UserInfo(context: Context): SharedPreferencesHelper(context) {
             val byteArray = Base64.decode(bitmapAsString, Base64.DEFAULT)
             return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
         }
+
+    fun setBiometricDetail(channelId: String, boolean: Boolean) {
+        setBoolean(channelId + "_$BIOMETRIC_LOCK", boolean)
+    }
+
+    fun getBiometricDetail(channelId: String): Boolean {
+        return getBoolean(channelId + "_$BIOMETRIC_LOCK")
+    }
 }

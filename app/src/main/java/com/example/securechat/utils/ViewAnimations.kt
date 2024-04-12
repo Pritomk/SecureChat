@@ -2,7 +2,11 @@ package com.example.securechat.utils
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.os.Handler
 import android.view.View
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.example.securechat.R
 
 
 object ViewAnimations {
@@ -49,6 +53,20 @@ object ViewAnimations {
         v.visibility = View.GONE
         v.translationY = v.height.toFloat()
         v.setAlpha(0f)
+    }
+
+    fun roundAnimation(view: ImageView, resourceId: Int) {
+        view.animate()
+            .rotationBy(360f)
+            .withEndAction {
+                view.animate().rotationBy(360f).setDuration(1000).setInterpolator(null).start()
+            }
+            .setDuration(300)
+            .setInterpolator(null)
+            .start()
+        view.postDelayed({
+            view.setImageResource(resourceId)
+        }, 150)
     }
 
 }

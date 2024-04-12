@@ -18,6 +18,7 @@ import com.example.securechat.databinding.ActivityHomeBinding
 import com.example.securechat.listeners.ContactClicked
 import com.example.securechat.ui.chat.ChatActivity
 import com.example.securechat.utils.ActivityLauncher
+import com.example.securechat.utils.BiometricAuthentication
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.UserInfo
 import com.example.securechat.utils.ViewAnimations
@@ -175,10 +176,17 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
         val uid = UserInfo(this@HomeActivity).userId!!
         viewModel.channels.observe(this@HomeActivity) {
             if (::adapter.isInitialized) {
+                setLockedValue(it)
                 adapter.updateData(it)
             }
         }
         viewModel.getExistingChannels(uid, 0)
+    }
+
+    private fun setLockedValue(channelGists: List<ChannelGist>?) {
+        channelGists?.forEach {
+            it.isLocked = UserInfo(this@HomeActivity).getBiometricDetail(it.channelId)
+        }
     }
 
     private fun setUpAddedChannelObserver() {
@@ -198,7 +206,39 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
     }
 
     override fun contactClicked(channelGist: ChannelGist) {
-        ActivityLauncher.launchChat(this@HomeActivity, channelGist)
+        if (!channelGist.isLocked) {
+            ActivityLauncher.launchChat(this@HomeActivity, channelGist)
+        } else {
+            BiometricAuthentication.executeBiometricAuthentication(
+                this,
+                "To enter the chat with ${channelGist.name}",
+                authPass = {
+                    ActivityLauncher.launchChat(this@HomeActivity, channelGist)
+                },
+                authFailed = {
+                    Toast.makeText(this@HomeActivity, "Wrong credentials", Toast.LENGTH_SHORT).show()
+                })
+        }
+    }
+
+    override fun lockedBtnClicked(channelGist: ChannelGist, imageView: ImageView) {
+        if (channelGist.isLocked) {
+            BiometricAuthentication.executeBiometricAuthentication(
+                this,
+                "To unlock the chat with ${channelGist.name}",
+                authPass = {
+                    ViewAnimations.roundAnimation(imageView, R.drawable.ic_unlocked)
+                    UserInfo(this@HomeActivity).setBiometricDetail(channelGist.channelId, false)
+                    channelGist.isLocked = false
+                },
+                authFailed = {
+                    Toast.makeText(this@HomeActivity, "Wrong credentials", Toast.LENGTH_SHORT).show()
+                })
+        } else {
+            ViewAnimations.roundAnimation(imageView, R.drawable.ic_locked)
+            UserInfo(this@HomeActivity).setBiometricDetail(channelGist.channelId, true)
+            channelGist.isLocked = true
+        }
     }
 
 }

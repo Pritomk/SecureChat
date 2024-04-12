@@ -10,4 +10,5 @@ data class ChannelGist(
     val uid: String,
     val name: String,
     val displayPic: String = "https://xsgames.co/randomusers/avatar.php?g=female",
+    var isLocked: Boolean = false
 ): Parcelable

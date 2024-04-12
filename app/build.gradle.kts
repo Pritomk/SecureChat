@@ -90,4 +90,7 @@ dependencies {
 
     //Image picker
     implementation(libs.imagepicker)
+
+    //Biometric lock
+    implementation(libs.androidx.biometric)
 }
