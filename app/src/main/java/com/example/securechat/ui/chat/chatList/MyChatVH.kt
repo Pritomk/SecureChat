@@ -1,6 +1,9 @@
 package com.example.securechat.ui.chat.chatList
 
 import androidx.recyclerview.widget.RecyclerView
+import android.view.View
+import com.bumptech.glide.Glide
+import com.example.securechat.data.model.MessageGist
 import com.example.securechat.databinding.MyChatBinding
 import com.example.securechat.utils.AppCommonMethods
 import io.getstream.chat.android.models.Message
@@ -9,6 +12,16 @@ class MyChatVH(private val binding: MyChatBinding) : ChatListAdapter.ChatListVie
     override fun bind(message: Message) {
         binding.chatText.text = message.text
         binding.chatTime.text = AppCommonMethods.formatTimeFromMillis(message.createdAt?.time, "HH:mm a")
+        if (messageGist.text.isNullOrBlank()) {
+            binding.chatText.visibility = View.GONE
+        } else {
+            binding.chatText.visibility = View.VISIBLE
+            binding.chatText.text = messageGist.text
+        }
+        if (!messageGist.attachments.isNullOrEmpty()) {
+            Glide.with(binding.attachedImg.context).load(messageGist.attachments[0].imageUrl).into(binding.attachedImg)
+            binding.attachedImg.visibility = View.VISIBLE
+        }
     }
 
 }
