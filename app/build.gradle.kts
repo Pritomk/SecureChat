@@ -93,4 +93,7 @@ dependencies {
 
     //Biometric lock
     implementation(libs.androidx.biometric)
+
+    //RecyclerView
+    implementation(libs.androidx.recyclerview.selection)
 }

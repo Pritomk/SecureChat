@@ -141,26 +141,8 @@ class ChatActivity : AppCompatActivity() {
         chatAdapter = ChatListAdapter(this@ChatActivity)
         binding.chatListRv.adapter = chatAdapter
         binding.chatListRv.layoutManager = layoutManager
-        binding.chatListRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                when (newState) {
-                    SCROLL_STATE_SETTLING -> {
-                        val visibleItemCount = layoutManager.childCount
-                        val totalItemCount = layoutManager.itemCount
-                        val firstVisibleItemCount = layoutManager.findFirstVisibleItemPosition()
-
-                        if (visibleItemCount + firstVisibleItemCount + 5 >= totalItemCount && totalItemCount > 0) {
-                            val lastItem = chatAdapter.getLastItem()
-                            lastItem?.let {
-                                loadMoreData(it.id)
-                            }
-                        }
-                    }
-                }
-            }
-        })
+        val itemTouchHelper = ItemTouchHelper(provideItemTouchHelper(this))
+        itemTouchHelper.attachToRecyclerView(binding.chatListRv)
 //        binding.chatListRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 //            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
 //                super.onScrollStateChanged(recyclerView, newState)
