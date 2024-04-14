@@ -3,19 +3,15 @@ package com.example.securechat.data
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.securechat.data.model.MessageGist
+import com.example.securechat.utils.AppCommonMethods
 import com.example.securechat.utils.ChatService
 import io.getstream.chat.android.client.api.models.Pagination
 import io.getstream.chat.android.client.api.models.QueryChannelRequest
-import io.getstream.chat.android.client.channel.state.ChannelState
 import io.getstream.chat.android.client.events.ChatEvent
-import io.getstream.chat.android.client.events.NewMessageEvent
-import io.getstream.chat.android.client.utils.observable.Disposable
 import io.getstream.chat.android.models.Message
-import io.getstream.chat.android.state.extensions.watchChannelAsState
-import io.getstream.result.call.enqueue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.lang.Exception
@@ -67,8 +63,8 @@ class ChatDataSource(
         return future
     }
 
-    fun getAllMessage(pageSize: Int, lastMsgId: String?): CompletableFuture<Result<List<Message>>> {
-        val future = CompletableFuture<Result<List<Message>>>()
+    fun getAllMessage(pageSize: Int, lastMsgId: String?, myUid: String): CompletableFuture<Result<List<MessageGist>>> {
+        val future = CompletableFuture<Result<List<MessageGist>>>()
 
         coroutineScope.launch {
             val request: QueryChannelRequest = if (lastMsgId == null) {
@@ -82,7 +78,7 @@ class ChatDataSource(
                 if (result.isSuccess) {
                     val messages = result.getOrNull()?.messages
                     messages?.let {
-                        future.complete(Result.Success(it.reversed()))
+                        future.complete(Result.Success(it.reversed().getMessageGist(myUid)))
                     }
                 } else {
                     future.complete(Result.Error(IOException(result.errorOrNull()?.message)))
@@ -91,6 +87,18 @@ class ChatDataSource(
         }
 
         return future
+    }
+
+    fun List<Message>.getMessageGist(myUid: String): List<MessageGist> {
+        return this.map {
+            MessageGist(
+                id = it.id,
+                side = AppCommonMethods.checkSide(it.user, myUid),
+                text = it.text,
+                createdAt = it.createdAt,
+                attachments = it.attachments
+            )
+        }
     }
 
 }

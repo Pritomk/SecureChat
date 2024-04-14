@@ -1,13 +1,11 @@
 package com.example.securechat.ui.chat
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -21,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING
 import com.bumptech.glide.Glide
 import com.example.securechat.R
 import com.example.securechat.data.model.ChannelGist
+import com.example.securechat.data.model.MessageGist
 import com.example.securechat.databinding.ActivityChatBinding
+import com.example.securechat.listeners.SwipeListener
 import com.example.securechat.ui.chat.chatList.ChatListAdapter
 import com.example.securechat.utils.AppConstants
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.DialogHelper
+import com.example.securechat.utils.UserInfo
 import com.github.dhaval2404.imagepicker.ImagePicker
 
 class ChatActivity : AppCompatActivity() {
@@ -70,7 +71,9 @@ class ChatActivity : AppCompatActivity() {
         setUpViewModel(channelGist)
         setUpToolbar(channelGist)
         setUpChatListRV()
-        viewModel.listenEvents(this@ChatActivity)
+        UserInfo(this@ChatActivity).userId?.let {
+            viewModel.listenEvents(this@ChatActivity, it)
+        }
         setUpAttach()
         setUpSendBtn()
         setUpBackBtn()
@@ -114,16 +117,20 @@ class ChatActivity : AppCompatActivity() {
         viewModel.messages.observe(this@ChatActivity) {
             it?.let { messages ->
                 chatAdapter.updateMessageList(messages)
-                if (messages.isNotEmpty() && chatAdapter.itemCount <= 20) {
+                if (messages.isNotEmpty() && chatAdapter.itemCount <= 30) {
                     binding.chatListRv.scrollToPosition(0)
                 }
             }
         }
-        viewModel.getAllMessages(null)
+        UserInfo(this@ChatActivity).userId?.let {
+            viewModel.getAllMessages(null, it)
+        }
     }
 
     private fun loadMoreData(lastMsgId: String) {
-        viewModel.getAllMessages(lastMsgId)
+        UserInfo(this@ChatActivity).userId?.let {
+            viewModel.getAllMessages(lastMsgId, it)
+        }
     }
 
 
@@ -154,6 +161,26 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         })
+//        binding.chatListRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+//                super.onScrollStateChanged(recyclerView, newState)
+//
+//                when (newState) {
+//                    SCROLL_STATE_SETTLING -> {
+//                        val visibleItemCount = layoutManager.childCount
+//                        val totalItemCount = layoutManager.itemCount
+//                        val firstVisibleItemCount = layoutManager.findFirstVisibleItemPosition()
+//
+//                        if (visibleItemCount + firstVisibleItemCount + 5 >= totalItemCount && totalItemCount > 0) {
+//                            val lastItem = chatAdapter.getLastItem()
+//                            lastItem?.let {
+//                                loadMoreData(it.id)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        })
     }
 
     private fun setUpSendBtn() {
