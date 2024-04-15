@@ -1,5 +1,8 @@
 package com.example.securechat.ui.chat
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -10,26 +13,26 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING
-import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
-import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING
 import com.bumptech.glide.Glide
-import com.example.securechat.R
 import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.data.model.MessageGist
 import com.example.securechat.databinding.ActivityChatBinding
 import com.example.securechat.listeners.SwipeListener
 import com.example.securechat.ui.chat.chatList.ChatListAdapter
 import com.example.securechat.utils.AppConstants
+import com.example.securechat.utils.ChatSide
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.DialogHelper
 import com.example.securechat.utils.UserInfo
 import com.github.dhaval2404.imagepicker.ImagePicker
+import kotlinx.coroutines.launch
 
-class ChatActivity : AppCompatActivity() {
+
+class ChatActivity : AppCompatActivity(), SwipeListener {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var viewModel: ChatViewModel
@@ -59,7 +62,7 @@ class ChatActivity : AppCompatActivity() {
             setUpUi()
         } else {
             DialogHelper.simpleDialog(
-                this@ChatActivity, resources.getString(R.string.no_internet_msg)
+                this@ChatActivity, resources.getString(com.example.securechat.R.string.no_internet_msg)
             ) {
                 checkNetwork()
             }
@@ -79,6 +82,45 @@ class ChatActivity : AppCompatActivity() {
         setUpBackBtn()
         setUpFetchChats()
         setUpReceiveNewMessage()
+        setUpReplyText()
+    }
+
+    private fun setUpReplyText() {
+        lifecycleScope.launch {
+            viewModel.replyMessage.collect { messageGist ->
+                if (messageGist.id != null ){
+                    showReplyDialog(messageGist)
+                } else {
+                    binding.replyCl.visibility = View.GONE
+                }
+            }
+        }
+
+        binding.replyCross.setOnClickListener {
+            viewModel.updateReplyMessage(MessageGist(null, ChatSide.MY_CHAT))
+        }
+    }
+
+    private fun showReplyDialog(messageGist: MessageGist) {
+        val constraintLayout = binding.replyCl
+        val height = constraintLayout.height.toFloat()
+
+        constraintLayout.translationY = height
+
+        binding.replyText.text = messageGist.text
+
+        ObjectAnimator.ofFloat(constraintLayout, "translationY", 0f).apply {
+            duration = 300
+            start()
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    constraintLayout.visibility = View.VISIBLE
+                }
+            })
+        }
+
+
     }
 
     private fun setUpReceiveNewMessage() {
@@ -141,6 +183,7 @@ class ChatActivity : AppCompatActivity() {
         chatAdapter = ChatListAdapter(this@ChatActivity)
         binding.chatListRv.adapter = chatAdapter
         binding.chatListRv.layoutManager = layoutManager
+
         val itemTouchHelper = ItemTouchHelper(provideItemTouchHelper(this))
         itemTouchHelper.attachToRecyclerView(binding.chatListRv)
 //        binding.chatListRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -169,11 +212,13 @@ class ChatActivity : AppCompatActivity() {
         binding.sendButton.setOnClickListener {
             val text = binding.sendText.text.toString()
             if (text.isBlank()) {
-                binding.sendText.error = resources.getString(R.string.empty_text_error)
+                binding.sendText.error = resources.getString(com.example.securechat.R.string.empty_text_error)
             } else {
                 viewModel.sendText(text)
                 binding.sendText.setText("")
-                Toast.makeText(this@ChatActivity, "Message has been sent", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ChatActivity, "Message has been sent", Toast.LENGTH_SHORT)
+                    .show()
+                viewModel.updateReplyMessage(MessageGist(null, ChatSide.MY_CHAT))
             }
         }
     }
@@ -206,4 +251,45 @@ class ChatActivity : AppCompatActivity() {
             binding.attachImgCross.visibility = View.GONE
         }
     }
+
+    private fun provideItemTouchHelper(swipeListener: SwipeListener): ItemTouchHelper.SimpleCallback {
+        return object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                chatAdapter.notifyItemChanged(position)
+                binding.chatListRv.scrollToPosition(0)
+                when (direction) {
+                    ItemTouchHelper.LEFT -> swipeListener.onSwipeLeft(chatAdapter.getItemAt(position))
+                    ItemTouchHelper.RIGHT -> swipeListener.onSwipeRight(
+                        chatAdapter.getItemAt(
+                            position
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onSwipeLeft(messageGist: MessageGist?) {
+        messageGist?.let {
+            viewModel.updateReplyMessage(it)
+        }
+    }
+
+    override fun onSwipeRight(messageGist: MessageGist?) {
+        messageGist?.let {
+            viewModel.updateReplyMessage(it)
+        }
+    }
+
 }

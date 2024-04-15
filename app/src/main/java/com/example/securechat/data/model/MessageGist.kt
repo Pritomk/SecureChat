@@ -5,9 +5,10 @@ import io.getstream.chat.android.models.Attachment
 import java.util.Date
 
 data class MessageGist(
-    val id: String,
+    val id: String?,
     val side: ChatSide,
     val text: String? = null,
     val createdAt: Date? = null,
-    val attachments: List<Attachment>? = null
+    val attachments: List<Attachment>? = null,
+    val replyMessage: MessageGist? = null
 )

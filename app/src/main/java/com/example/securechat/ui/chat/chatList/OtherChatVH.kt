@@ -27,6 +27,14 @@ class OtherChatVH(private val binding: OtherChatBinding): ChatListAdapter.ChatLi
         if (!messageGist.attachments.isNullOrEmpty()) {
             Glide.with(binding.attachedImg.context).load(messageGist.attachments[0].imageUrl).into(binding.attachedImg)
             binding.attachedImg.visibility = View.VISIBLE
+        } else {
+            binding.attachedImg.visibility = View.GONE
+        }
+        if (messageGist.replyMessage != null) {
+            binding.replyText.text = messageGist.replyMessage.text
+            binding.replyText.visibility = View.VISIBLE
+        } else {
+            binding.replyText.visibility = View.GONE
         }
     }
 

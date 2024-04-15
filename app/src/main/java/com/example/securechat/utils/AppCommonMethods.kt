@@ -3,6 +3,8 @@ package com.example.securechat.utils
 import android.view.View
 import android.view.ViewGroup
 import com.example.securechat.ApplicationMain
+import com.example.securechat.data.model.MessageGist
+import io.getstream.chat.android.models.Message
 import io.getstream.chat.android.models.User
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,6 +26,17 @@ object AppCommonMethods {
             p.setMargins((left*density).toInt(), (top*density).toInt(), (right*density).toInt(), (bottom*density).toInt())
             view.layoutParams = p
         }
+    }
+
+    fun convertToMessageGist(message: Message, myUid: String): MessageGist {
+        return MessageGist(
+            id = message.id,
+            side = checkSide(message.user, myUid),
+            text = message.text,
+            createdAt = message.createdAt,
+            attachments = message.attachments,
+            replyMessage = null
+        )
     }
 
 }

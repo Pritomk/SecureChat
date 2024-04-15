@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.MarginLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import com.example.securechat.data.model.MessageGist
 import com.example.securechat.databinding.HiddenLayoutBinding
@@ -59,9 +58,17 @@ class ChatListAdapter(
         notifyDataSetChanged()
     }
 
-    fun getLastItem() = if (messages.isNotEmpty()) messages.last() else null
+    fun getLastItem() =
+        if (messages.isNotEmpty())
+            messages.last()
+        else
+            null
 
-    fun getItemAt(position: Int) = if (messages.isNotEmpty() && position >= 0 && position < messages.size) messages[position] else null
+    fun getItemAt(position: Int) =
+        if (messages.isNotEmpty() && position >= 0 && position < messages.size)
+            messages[position]
+        else
+            null
 
 
     sealed class ChatListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

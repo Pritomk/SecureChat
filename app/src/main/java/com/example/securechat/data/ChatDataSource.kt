@@ -14,8 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.lang.Exception
-import java.util.Collections
 import java.util.concurrent.CompletableFuture
 
 class ChatDataSource(
@@ -41,12 +39,23 @@ class ChatDataSource(
         return newEvent
     }
 
-    fun sendTextMsg(text: String, isRetry: Boolean): CompletableFuture<Result<Message>> {
+    fun sendTextMsg(
+        text: String,
+        isRetry: Boolean,
+        replyMsgId: String?
+    ): CompletableFuture<Result<Message>> {
         val future = CompletableFuture<Result<Message>>()
         coroutineScope.launch {
-            val message = Message(
-                text = text
-            )
+            val message: Message = if (replyMsgId != null) {
+                Message(
+                    text = text,
+                    replyMessageId = replyMsgId
+                )
+            } else {
+                Message(
+                    text = text
+                )
+            }
             channelClient?.sendMessage(message, isRetry)?.enqueue {
                 if (it.isFailure) {
                     Log.d("pritom", "error ${it.errorOrNull()?.message}")
@@ -63,7 +72,11 @@ class ChatDataSource(
         return future
     }
 
-    fun getAllMessage(pageSize: Int, lastMsgId: String?, myUid: String): CompletableFuture<Result<List<MessageGist>>> {
+    fun getAllMessage(
+        pageSize: Int,
+        lastMsgId: String?,
+        myUid: String
+    ): CompletableFuture<Result<List<MessageGist>>> {
         val future = CompletableFuture<Result<List<MessageGist>>>()
 
         coroutineScope.launch {
@@ -89,15 +102,75 @@ class ChatDataSource(
         return future
     }
 
-    fun List<Message>.getMessageGist(myUid: String): List<MessageGist> {
-        return this.map {
-            MessageGist(
-                id = it.id,
-                side = AppCommonMethods.checkSide(it.user, myUid),
-                text = it.text,
-                createdAt = it.createdAt,
-                attachments = it.attachments
-            )
+    private fun List<Message>.getMessageGist(myUid: String): List<MessageGist> {
+        val messageList = ArrayList<MessageGist>()
+        this.forEach { message ->
+            if (message.replyMessageId != null) {
+                val matchedMsg = this.singleOrNull {
+                    it.id == message.replyMessageId
+                }
+                if (matchedMsg != null) {
+                    messageList.add(
+                        MessageGist(
+                            id = message.id,
+                            side = AppCommonMethods.checkSide(message.user, myUid),
+                            text = message.text,
+                            createdAt = message.createdAt,
+                            attachments = message.attachments,
+                            replyMessage = AppCommonMethods.convertToMessageGist(matchedMsg, myUid)
+                        )
+                    )
+                } else {
+                    fetchSingleMessage(myUid, message.replyMessageId!!) {
+                        messageList.add(
+                            MessageGist(
+                                id = message.id,
+                                side = AppCommonMethods.checkSide(message.user, myUid),
+                                text = message.text,
+                                createdAt = message.createdAt,
+                                attachments = message.attachments,
+                                replyMessage = it
+                            )
+                        )
+                    }
+                }
+            } else {
+                messageList.add(
+                    MessageGist(
+                        id = message.id,
+                        side = AppCommonMethods.checkSide(message.user, myUid),
+                        text = message.text,
+                        createdAt = message.createdAt,
+                        attachments = message.attachments
+                    )
+                )
+            }
+        }
+        return messageList
+    }
+
+    fun fetchSingleMessage(
+        myUid: String,
+        id: String,
+        fetchedMessage: (MessageGist) -> Unit
+    ) {
+        channelClient?.getMessage(id)?.enqueue { result ->
+            if (result.isSuccess) {
+                val message = result.getOrNull()
+                message?.let {
+                    val messageGist = MessageGist(
+                        id = it.id,
+                        side = AppCommonMethods.checkSide(it.user, myUid),
+                        text = it.text,
+                        createdAt = it.createdAt,
+                        attachments = it.attachments,
+                        replyMessage = null
+                    )
+                    fetchedMessage(messageGist)
+                }
+            } else {
+
+            }
         }
     }
 

@@ -20,6 +20,23 @@
             android:padding="6dp"
             android:layout_alignParentStart="true">
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/reply_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/chat_text"
+                android:maxWidth="280dp"
+                tools:text="@tools:sample/lorem/random"
+                android:background="@drawable/reply_bg"
+                android:padding="4dp"
+                android:fontFamily="@font/inter_medium"
+                android:textSize="14sp"
+                android:maxLines="2"
+                android:visibility="gone"/>
+
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/attached_img"
                 android:layout_width="180dp"

@@ -6,4 +6,6 @@ object AppConstants {
 
     const val MY_CHAT_CODE = 101
     const val OTHER_CHAT_CODE = 102
+
+    const val SWIPE_TO_REPLY = 103
 }

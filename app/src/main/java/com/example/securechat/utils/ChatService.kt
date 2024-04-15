@@ -1,6 +1,5 @@
 package com.example.securechat.utils
 
-import android.content.Context
 import com.example.securechat.ApplicationMain
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.channel.ChannelClient

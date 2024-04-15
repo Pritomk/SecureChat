@@ -1,8 +1,6 @@
 package com.example.securechat.ui.chat
 
-import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,12 +13,10 @@ import com.example.securechat.data.Result
 import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.data.model.MessageGist
 import com.example.securechat.utils.AppCommonMethods
-import com.example.securechat.utils.ChatService
-import io.getstream.chat.android.client.channel.ChannelClient
-import io.getstream.chat.android.client.events.ChatEvent
+import com.example.securechat.utils.ChatSide
 import io.getstream.chat.android.client.events.NewMessageEvent
-import io.getstream.chat.android.client.utils.observable.Disposable
-import io.getstream.chat.android.models.Message
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlin.reflect.KFunction1
 
 class ChatViewModel(
@@ -40,42 +36,75 @@ class ChatViewModel(
     private val _newMessage = MutableLiveData<MessageGist>()
     val newMessage: LiveData<MessageGist> = _newMessage
 
+    private val _replyMessageId = MutableStateFlow(MessageGist(null, ChatSide.MY_CHAT))
+    val replyMessage = _replyMessageId.asStateFlow()
+
     companion object {
-        fun provideViewModelFactory(runOnUiThread: KFunction1<Runnable, Unit>, channelId: String) = viewModelFactory {
-            initializer {
-                ChatViewModel(
-                    runOnUiThread = runOnUiThread,
-                    chatRepository =
-                    ChatRepository(
-                        chatDataSource =
-                        ChatDataSource(
-                            channelId = channelId
+        fun provideViewModelFactory(runOnUiThread: KFunction1<Runnable, Unit>, channelId: String) =
+            viewModelFactory {
+                initializer {
+                    ChatViewModel(
+                        runOnUiThread = runOnUiThread,
+                        chatRepository =
+                        ChatRepository(
+                            chatDataSource =
+                            ChatDataSource(
+                                channelId = channelId
+                            )
                         )
                     )
-                )
+                }
             }
-        }
     }
 
     fun listenEvents(lifeCycleOwner: LifecycleOwner, myUid: String) {
-        chatRepository.listenEvent().observe(lifeCycleOwner) {event ->
+        chatRepository.listenEvent().observe(lifeCycleOwner) { event ->
             when (event) {
                 is NewMessageEvent -> {
-                    runOnUiThread {
-                        _newMessage.value =             MessageGist(
-                            id = event.message.id,
-                            side = AppCommonMethods.checkSide(event.message.user, myUid),
-                            text = event.message.text,
-                            createdAt = event.message.createdAt,
-                            attachments = event.message.attachments
-                        )
-
+                    getMessage(myUid, event) {
+                        runOnUiThread {
+                            _newMessage.value = it
+                        }
                     }
                 }
+
                 else -> {
 
                 }
             }
+        }
+    }
+
+    private fun getMessage(
+        myUid: String,
+        event: NewMessageEvent,
+        fetchedMessageGist: (MessageGist) -> Unit
+    ) {
+        val message = event.message
+        if (message.replyMessageId != null) {
+            chatRepository.fetchSingleMessage(myUid, message.replyMessageId!!) {
+                fetchedMessageGist(
+                    MessageGist(
+                        id = message.id,
+                        side = AppCommonMethods.checkSide(message.user, myUid),
+                        text = message.text,
+                        createdAt = message.createdAt,
+                        attachments = message.attachments,
+                        replyMessage = it
+                    )
+                )
+            }
+
+        } else {
+            fetchedMessageGist(
+                MessageGist(
+                    id = message.id,
+                    side = AppCommonMethods.checkSide(message.user, myUid),
+                    text = message.text,
+                    createdAt = message.createdAt,
+                    attachments = message.attachments
+                )
+            )
         }
     }
 
@@ -85,7 +114,11 @@ class ChatViewModel(
     }
 
     fun sendText(sendingText: String) {
-        chatRepository.sendTextMsg(sendingText)
+        if (replyMessage.value.id != null) {
+            chatRepository.sendTextMsg(sendingText, replyMessage.value.id)
+        } else {
+            chatRepository.sendTextMsg(sendingText, null)
+        }
     }
 
     fun sendImage(sendingImage: Uri?) {
@@ -102,7 +135,7 @@ class ChatViewModel(
     }
 
     fun getAllMessages(lastMsgId: String?, myUid: String) {
-        chatRepository.getAllMessages(lastMsgId, myUid).thenAccept {result ->
+        chatRepository.getAllMessages(lastMsgId, myUid).thenAccept { result ->
             when (result) {
                 is Result.Error -> TODO()
                 is Result.Success -> {
@@ -112,6 +145,10 @@ class ChatViewModel(
                 }
             }
         }
+    }
+
+    fun updateReplyMessage(messageGist: MessageGist) {
+        _replyMessageId.value = messageGist
     }
 
 }
