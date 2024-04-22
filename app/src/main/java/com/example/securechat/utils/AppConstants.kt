@@ -8,4 +8,6 @@ object AppConstants {
     const val OTHER_CHAT_CODE = 102
 
     const val SWIPE_TO_REPLY = 103
+
+    const val RSA_ALIAS = "rsa_secrets"
 }

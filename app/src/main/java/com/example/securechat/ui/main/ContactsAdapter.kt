@@ -48,7 +48,7 @@ class ContactsAdapter(
     fun addToInitial(newChannel: ChannelGist?) {
         newChannel?.let {
             contacts.add(0, newChannel)
-            notifyItemChanged(0)
+            notifyDataSetChanged()
         }
     }
 

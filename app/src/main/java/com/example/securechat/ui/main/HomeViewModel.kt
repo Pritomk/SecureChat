@@ -1,5 +1,6 @@
 package com.example.securechat.ui.main
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -38,8 +39,8 @@ class HomeViewModel(
         }
     }
 
-    fun generateQrCode(uid: String) {
-        homeRepository.getGeneratedQrCode(uid).thenAccept {
+    fun generateQrCode(uid: String, context: Context) {
+        homeRepository.getGeneratedQrCode(uid, context).thenAccept {
             when (it) {
                 is Result.Success -> {
                     runOnUiThread {
@@ -53,8 +54,8 @@ class HomeViewModel(
         }
     }
 
-    fun createChannel(myUid: String, newUserUid: String) {
-        homeRepository.createChannel(myUid, newUserUid).thenAccept { result ->
+    fun createChannel(context: Context, myUid: String, newUserUid: String, publicKey: String, privateKey: String) {
+        homeRepository.createChannel(context, myUid, newUserUid, publicKey, privateKey).thenAccept { result ->
             when (result) {
                 is Result.Error -> TODO()
                 is Result.Success -> {

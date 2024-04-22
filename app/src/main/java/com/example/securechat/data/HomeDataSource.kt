@@ -1,9 +1,11 @@
 package com.example.securechat.data
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.utils.ChatService
+import com.example.securechat.utils.UserInfo
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.zxing.BarcodeFormat
@@ -17,7 +19,6 @@ import io.getstream.chat.android.models.querysort.QuerySortByField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.util.concurrent.CompletableFuture
 
 class HomeDataSource(
@@ -26,15 +27,20 @@ class HomeDataSource(
 
     private val TAG = "com.example.securechat.data.HomeDataSource"
 
-    fun generateQrCode(uid: String): CompletableFuture<Result<Bitmap>> {
+    fun generateQrCode(uid: String, context: Context): CompletableFuture<Result<Bitmap>> {
         val future = CompletableFuture<Result<Bitmap>>()
         coroutineScope.launch {
             val mWriter = MultiFormatWriter()
             try {
+                val myPrivateKey = UserInfo(context).privateKey
+                val myPublicKey = UserInfo(context).publicKey
                 //BitMatrix class to encode entered text and set Width & Height
                 val jsonObject = JsonObject()
                 jsonObject.addProperty("uid", uid)
-                val mMatrix = mWriter.encode(Gson().toJson(jsonObject), BarcodeFormat.QR_CODE, 300, 300)
+                jsonObject.addProperty("publicKey", myPublicKey)
+                jsonObject.addProperty("privateKey", myPrivateKey)
+                val mMatrix =
+                    mWriter.encode(Gson().toJson(jsonObject), BarcodeFormat.QR_CODE, 300, 300)
                 val mEncoder = BarcodeEncoder()
                 val mBitmap = mEncoder.createBitmap(mMatrix) //creating bitmap of code
                 future.complete(Result.Success(data = mBitmap))
@@ -45,12 +51,29 @@ class HomeDataSource(
         return future
     }
 
-    fun createChannel(myUid: String, newUserUid: String): CompletableFuture<Result<ChannelGist>> {
+    fun createChannel(
+        context: Context,
+        myUid: String,
+        newUserUid: String,
+        publicKey: String,
+        privateKey: String
+    ): CompletableFuture<Result<ChannelGist>> {
         val future = CompletableFuture<Result<ChannelGist>>()
         coroutineScope.launch {
             val chatClient = ChatService.getChatClient()
 
-            val channel = chatClient.createChannel("messaging", "", listOf(myUid, newUserUid), emptyMap())
+            val myPrivateKey = UserInfo(context).privateKey!!
+            val myPublicKey = UserInfo(context).publicKey!!
+
+            val publicKeys = mapOf(
+                myUid + "_pub" to myPublicKey,
+                newUserUid + "_pub" to publicKey,
+                myUid + "_private" to myPrivateKey,
+                newUserUid + "_private" to privateKey
+            )
+
+            val channel =
+                chatClient.createChannel("messaging", "", listOf(myUid, newUserUid), publicKeys)
             channel.enqueue {
                 if (it.isFailure) {
                     Log.e(TAG, "Custom error" + Gson().toJson(it.errorOrNull()))
@@ -58,8 +81,8 @@ class HomeDataSource(
                 }
                 if (it.isSuccess) {
                     Log.d(TAG, "Success" + Gson().toJson(it.getOrNull()))
-                    it.getOrNull()?.let {channel ->
-                        getChannelGistFromChannel(channel, myUid)?.let {gist ->
+                    it.getOrNull()?.let { channel ->
+                        getChannelGistFromChannel(channel, myUid)?.let { gist ->
                             future.complete(Result.Success(gist))
                         }
                     }
@@ -76,7 +99,7 @@ class HomeDataSource(
             val request = QueryChannelsRequest(
                 filter = Filters.and(
                     Filters.eq("type", "messaging"),
-                    Filters.`in`("members", listOf(myUid)),
+                    Filters.`in`("members", myUid),
                 ),
                 offset = 0,
                 limit = 10,
@@ -95,7 +118,13 @@ class HomeDataSource(
                     }
                     val channelSTr = Gson().toJson(channels)
                     for (i in 0..channelSTr.length step 1000) {
-                        Log.d(TAG, channelSTr.substring(i, if (i+1000 < channelSTr.length) i+1000 else channelSTr.length))
+                        Log.d(
+                            TAG,
+                            channelSTr.substring(
+                                i,
+                                if (i + 1000 < channelSTr.length) i + 1000 else channelSTr.length
+                            )
+                        )
                     }
                 } else {
                     future.complete(Result.Error(Exception(result.errorOrNull()?.message)))
@@ -108,7 +137,7 @@ class HomeDataSource(
     private fun List<Channel>.getOnlyChannelGist(myUid: String): List<ChannelGist> {
         val channelGists = ArrayList<ChannelGist>()
         this.forEach {
-            getChannelGistFromChannel(it, myUid)?.let {gist ->
+            getChannelGistFromChannel(it, myUid)?.let { gist ->
                 channelGists.add(gist)
             }
         }
@@ -119,10 +148,15 @@ class HomeDataSource(
         val other = channel.members.singleOrNull {
             it.user.id != myUid
         }
-        return other?.let {
+        return if (other != null) {
             val name = other.user.name
             val userId = other.user.id
             val channelId = channel.id
+            ChannelGist(channelId, userId, name)
+        } else {
+            val name = channel.createdBy.name
+            val userId = channel.createdBy.id
+            val channelId = channel.createdBy.id
             ChannelGist(channelId, userId, name)
         }
     }

@@ -39,6 +39,12 @@ class ChatViewModel(
     private val _replyMessageId = MutableStateFlow(MessageGist(null, ChatSide.MY_CHAT))
     val replyMessage = _replyMessageId.asStateFlow()
 
+    private val _rsaKeys = MutableStateFlow(HashMap<String, String>())
+    val rsaKeys = _rsaKeys.asStateFlow()
+
+    private val _otherUserId = MutableStateFlow("")
+    val otherUserId = _otherUserId.asStateFlow()
+
     companion object {
         fun provideViewModelFactory(runOnUiThread: KFunction1<Runnable, Unit>, channelId: String) =
             viewModelFactory {
@@ -75,19 +81,31 @@ class ChatViewModel(
         }
     }
 
+    fun updateOtherUserId(otherUserId: String) {
+        _otherUserId.value = otherUserId
+    }
+
     private fun getMessage(
         myUid: String,
         event: NewMessageEvent,
         fetchedMessageGist: (MessageGist) -> Unit
     ) {
         val message = event.message
+        val side = AppCommonMethods.checkSide(message.user, myUid)
+        val decryptedMessage =
+            AppCommonMethods.decryptMsg(side, message, rsaKeys.value, otherUserId.value, myUid)
         if (message.replyMessageId != null) {
-            chatRepository.fetchSingleMessage(myUid, message.replyMessageId!!) {
+            chatRepository.fetchSingleMessage(
+                myUid,
+                message.replyMessageId!!,
+                rsaKeys.value,
+                otherUserId.value
+            ) {
                 fetchedMessageGist(
                     MessageGist(
                         id = message.id,
-                        side = AppCommonMethods.checkSide(message.user, myUid),
-                        text = message.text,
+                        side = side,
+                        text = decryptedMessage,
                         createdAt = message.createdAt,
                         attachments = message.attachments,
                         replyMessage = it
@@ -99,8 +117,8 @@ class ChatViewModel(
             fetchedMessageGist(
                 MessageGist(
                     id = message.id,
-                    side = AppCommonMethods.checkSide(message.user, myUid),
-                    text = message.text,
+                    side = side,
+                    text = decryptedMessage,
                     createdAt = message.createdAt,
                     attachments = message.attachments
                 )
@@ -115,9 +133,21 @@ class ChatViewModel(
 
     fun sendText(sendingText: String) {
         if (replyMessage.value.id != null) {
-            chatRepository.sendTextMsg(sendingText, replyMessage.value.id)
+            rsaKeys.value[otherUserId.value + "_pub"]?.let {
+                chatRepository.sendTextMsg(
+                    sendingText,
+                    replyMessage.value.id,
+                    it
+                )
+            }
         } else {
-            chatRepository.sendTextMsg(sendingText, null)
+            rsaKeys.value[otherUserId.value + "_pub"]?.let {
+                chatRepository.sendTextMsg(
+                    sendingText,
+                    null,
+                    it
+                )
+            }
         }
     }
 
@@ -135,7 +165,7 @@ class ChatViewModel(
     }
 
     fun getAllMessages(lastMsgId: String?, myUid: String) {
-        chatRepository.getAllMessages(lastMsgId, myUid).thenAccept { result ->
+        chatRepository.getAllMessages(lastMsgId, myUid, rsaKeys.value, otherUserId.value).thenAccept { result ->
             when (result) {
                 is Result.Error -> TODO()
                 is Result.Success -> {
@@ -149,6 +179,21 @@ class ChatViewModel(
 
     fun updateReplyMessage(messageGist: MessageGist) {
         _replyMessageId.value = messageGist
+    }
+
+    fun watchChannel(myUid: String) {
+        chatRepository.watchChannel().thenAccept { result ->
+            when (result) {
+                is Result.Error -> TODO()
+                is Result.Success -> {
+                    runOnUiThread {
+                        _rsaKeys.value = result.data as HashMap<String, String>
+                        getAllMessages(null, myUid)
+                    }
+                }
+            }
+
+        }
     }
 
 }

@@ -72,6 +72,8 @@ class ChatActivity : AppCompatActivity(), SwipeListener {
     private fun setUpUi() {
         val channelGist = getIntentData()
         setUpViewModel(channelGist)
+        viewModel.watchChannel(UserInfo(this@ChatActivity).userId!!)
+        viewModel.updateOtherUserId(channelGist.uid)
         setUpToolbar(channelGist)
         setUpChatListRV()
         UserInfo(this@ChatActivity).userId?.let {
@@ -163,9 +165,6 @@ class ChatActivity : AppCompatActivity(), SwipeListener {
                     binding.chatListRv.scrollToPosition(0)
                 }
             }
-        }
-        UserInfo(this@ChatActivity).userId?.let {
-            viewModel.getAllMessages(null, it)
         }
     }
 

@@ -16,7 +16,6 @@ import com.example.securechat.data.model.ChannelGist
 import com.example.securechat.data.model.QrResponse
 import com.example.securechat.databinding.ActivityHomeBinding
 import com.example.securechat.listeners.ContactClicked
-import com.example.securechat.ui.chat.ChatActivity
 import com.example.securechat.utils.ActivityLauncher
 import com.example.securechat.utils.BiometricAuthentication
 import com.example.securechat.utils.CommonMethods
@@ -26,7 +25,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.gson.Gson
 import com.google.zxing.integration.android.IntentIntegrator
-import io.getstream.chat.android.ui.feature.messages.MessageListActivity
 
 
 class HomeActivity : AppCompatActivity(), ContactClicked {
@@ -94,7 +92,7 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
             }
         }
         if (uid != null) {
-            viewModel.generateQrCode(uid)
+            viewModel.generateQrCode(uid, this)
         }
     }
 
@@ -153,7 +151,9 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
                     ViewAnimations.showOut(binding.fabQrCode)
                 }
                 val qrResponse = Gson().fromJson(intentResult.contents, QrResponse::class.java)
-                qrResponse.uid?.let { createNewChannel(it) }
+                if (!qrResponse?.uid.isNullOrBlank() && !qrResponse?.publicKey.isNullOrBlank() && !qrResponse?.privateKey.isNullOrBlank()) {
+                    createNewChannel(qrResponse.uid!!, qrResponse.publicKey!!, qrResponse.privateKey!!)
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -161,9 +161,9 @@ class HomeActivity : AppCompatActivity(), ContactClicked {
 
     }
 
-    private fun createNewChannel(newUserUid: String) {
+    private fun createNewChannel(newUserUid: String, publicKey: String, privateKey: String) {
         val myUid = UserInfo(this@HomeActivity).userId!!
-        viewModel.createChannel(myUid, newUserUid)
+        viewModel.createChannel(this, myUid, newUserUid, publicKey, privateKey)
     }
 
 

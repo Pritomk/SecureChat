@@ -1,19 +1,19 @@
 package com.example.securechat.data
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.example.securechat.data.model.ChannelGist
-import io.getstream.chat.android.models.Channel
 import java.util.concurrent.CompletableFuture
 
 class HomeRepository(
     private val dataSource: HomeDataSource
 ) {
-    fun getGeneratedQrCode(uid: String): CompletableFuture<Result<Bitmap>> {
-        return dataSource.generateQrCode(uid)
+    fun getGeneratedQrCode(uid: String, context: Context): CompletableFuture<Result<Bitmap>> {
+        return dataSource.generateQrCode(uid, context)
     }
 
-    fun createChannel(myUid: String, newUserUid: String): CompletableFuture<Result<ChannelGist>> {
-        return dataSource.createChannel(myUid, newUserUid)
+    fun createChannel(context: Context, myUid: String, newUserUid: String, publicKey: String, privateKey: String): CompletableFuture<Result<ChannelGist>> {
+        return dataSource.createChannel(context,myUid, newUserUid, publicKey, privateKey)
     }
 
     fun getExistingChannels(myUid: String, pageIndex: Int): CompletableFuture<Result<List<ChannelGist>>> {

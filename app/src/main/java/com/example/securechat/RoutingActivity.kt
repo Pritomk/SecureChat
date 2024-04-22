@@ -12,9 +12,12 @@ import com.example.securechat.utils.ChatService
 import com.example.securechat.utils.CommonMethods
 import com.example.securechat.utils.DialogHelper
 import com.example.securechat.utils.UserInfo
+import com.example.securechat.utils.crypto.RSACryptoManager
 import com.google.gson.Gson
+import io.getstream.chat.android.models.ConnectionData
 import io.getstream.chat.android.models.User
 import io.getstream.result.Result
+import java.util.Base64
 
 class RoutingActivity : AppCompatActivity() {
     fun open(context: Context) {
@@ -75,10 +78,7 @@ class RoutingActivity : AppCompatActivity() {
                 }
 
                 is Result.Success -> {
-                    Log.d("pritom", Gson().toJson(result.value))
-                    UserInfo(this@RoutingActivity).chatUserDetails = result.value.user
-                    ActivityLauncher.launchHome(this@RoutingActivity)
-                    finish()
+                    sendToHome(result)
                 }
             }
         }
@@ -87,5 +87,20 @@ class RoutingActivity : AppCompatActivity() {
     private fun sendToLogin() {
         CommonMethods(this@RoutingActivity).removePreferences()
         ActivityLauncher.launchLogin(this@RoutingActivity)
+    }
+    private fun sendToHome(result: Result.Success<ConnectionData>) {
+
+
+        val privateKey = UserInfo(this@RoutingActivity).privateKey
+        if (privateKey.isNullOrBlank()) {
+            val keyPair = RSACryptoManager.generateRsaKeyPair()
+            UserInfo(this@RoutingActivity).privateKey = Base64.getEncoder().encodeToString(keyPair.private.encoded)
+            UserInfo(this@RoutingActivity).publicKey = Base64.getEncoder().encodeToString(keyPair.public.encoded)
+        }
+
+        Log.d("pritom", Gson().toJson(result.value))
+        UserInfo(this@RoutingActivity).chatUserDetails = result.value.user
+        ActivityLauncher.launchHome(this@RoutingActivity)
+        finish()
     }
 }

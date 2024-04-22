@@ -18,7 +18,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/chat_right_start_bg"
             android:padding="6dp"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="6dp">
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/reply_text"
