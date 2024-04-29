@@ -77,6 +77,17 @@
             android:layout_toEndOf="@id/cons_layout"
             android:layout_centerVertical="true"/>
 
+        <ImageView
+            android:id="@+id/info_tag"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_info"
+            android:layout_toEndOf="@id/chat_time"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:visibility="gone"/>
+
+
     </RelativeLayout>
 
 </FrameLayout>

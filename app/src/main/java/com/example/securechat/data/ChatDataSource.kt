@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.securechat.data.model.MessageGist
+import com.example.securechat.networking.NetworkProvider
+import com.example.securechat.networking.NetworkService
+import com.example.securechat.networking.response.ClaimResponse
 import com.example.securechat.utils.AppCommonMethods
 import com.example.securechat.utils.ChatService
 import com.example.securechat.utils.crypto.CryptoManager
@@ -29,6 +32,13 @@ class ChatDataSource(
             ChatService.getChannelClient(it)
         }
     }
+
+    private val networkService by lazy {
+        NetworkProvider.getRetrofitBuilder("https://content-factchecktools.googleapis.com/")!!.create(
+            NetworkService::class.java)
+    }
+
+
 
     fun listenEvents(): LiveData<ChatEvent> {
 
@@ -221,5 +231,33 @@ class ChatDataSource(
             }
         }
     }
+
+    fun reliabilityCheck(text: String): CompletableFuture<Result<ClaimResponse>> {
+        val future = CompletableFuture<Result<ClaimResponse>>()
+        try {
+            coroutineScope.launch {
+
+                val result = kotlin.runCatching {
+                    networkService.reliabilityCheck(text, "AIzaSyDDX_GXcnohfrBeaLyPCU9Cvy4GYTx6kSw")
+                }
+
+                if (result.isFailure) {
+                    future.complete(Result.Error(IOException("Error in check fake or not ", result.exceptionOrNull())))
+                    return@launch
+                }
+
+                val response = result.getOrNull()
+                if (response == null) {
+                    future.complete(Result.Error(IOException("Error in check fake or not ", result.exceptionOrNull())))
+                    return@launch
+                }
+                future.complete(Result.Success(response))
+            }
+        } catch(e: Exception) {
+            Log.e("pritom", "$e")
+        }
+        return future
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.example.securechat.data
 
 import androidx.lifecycle.LiveData
 import com.example.securechat.data.model.MessageGist
+import com.example.securechat.networking.response.ClaimResponse
 import io.getstream.chat.android.client.events.ChatEvent
 import io.getstream.chat.android.models.Message
 import java.util.concurrent.CompletableFuture
@@ -44,4 +45,7 @@ class ChatRepository(
     ) {
         chatDataSource.fetchSingleMessage(myUid, id, rsaKeys, otherUserId, fetchedMessage)
     }
+
+    fun reliabilityCheck(text: String): CompletableFuture<Result<ClaimResponse>> = chatDataSource.reliabilityCheck(text)
+
 }

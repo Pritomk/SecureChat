@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.addCallback
@@ -183,6 +184,8 @@ class ChatActivity : AppCompatActivity(), SwipeListener {
         binding.chatListRv.adapter = chatAdapter
         binding.chatListRv.layoutManager = layoutManager
 
+        registerForContextMenu(binding.chatListRv)
+
         val itemTouchHelper = ItemTouchHelper(provideItemTouchHelper(this))
         itemTouchHelper.attachToRecyclerView(binding.chatListRv)
 //        binding.chatListRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -288,6 +291,22 @@ class ChatActivity : AppCompatActivity(), SwipeListener {
     override fun onSwipeRight(messageGist: MessageGist?) {
         messageGist?.let {
             viewModel.updateReplyMessage(it)
+        }
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            0 -> checkReliability(item.groupId)
+
+        }
+        return super.onContextItemSelected(item)
+    }
+
+    private fun checkReliability(position: Int) {
+        viewModel.reliabilityCheck(position) {
+            chatAdapter.notifyItemChanged(position)
+            binding.chatListRv.scrollToPosition(position)
+            Toast.makeText(this@ChatActivity, it, Toast.LENGTH_SHORT).show()
         }
     }
 

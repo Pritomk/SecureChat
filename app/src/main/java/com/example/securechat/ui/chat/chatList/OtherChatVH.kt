@@ -1,5 +1,6 @@
 package com.example.securechat.ui.chat.chatList
 
+import android.view.ContextMenu
 import android.view.View
 import com.bumptech.glide.Glide
 import com.example.securechat.data.model.MessageGist
@@ -36,6 +37,21 @@ class OtherChatVH(private val binding: OtherChatBinding): ChatListAdapter.ChatLi
         } else {
             binding.replyText.visibility = View.GONE
         }
+        if (messageGist.isFake == true) {
+            binding.infoTag.visibility = View.VISIBLE
+        } else {
+            binding.infoTag.visibility = View.GONE
+        }
+        binding.root.setOnCreateContextMenuListener(this)
     }
+
+    override fun onCreateContextMenu(
+        menu: ContextMenu?,
+        v: View?,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) {
+        menu?.add(adapterPosition, 0, 0, "Reliability Check")
+    }
+
 
 }

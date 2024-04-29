@@ -1,6 +1,7 @@
 package com.example.securechat.ui.chat.chatList
 
 import android.content.Context
+import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,7 +72,7 @@ class ChatListAdapter(
             null
 
 
-    sealed class ChatListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    sealed class ChatListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener {
         abstract fun bind(messageGist: MessageGist, lastMessageSide: ChatSide)
     }
 
@@ -79,5 +80,14 @@ class ChatListAdapter(
         override fun bind(messageGist: MessageGist, lastMessageSide: ChatSide) {
 
         }
+
+        override fun onCreateContextMenu(
+            menu: ContextMenu?,
+            v: View?,
+            menuInfo: ContextMenu.ContextMenuInfo?
+        ) {
+
+        }
+
     }
 }

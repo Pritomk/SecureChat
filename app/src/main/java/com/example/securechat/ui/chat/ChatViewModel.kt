@@ -196,4 +196,23 @@ class ChatViewModel(
         }
     }
 
+
+    fun reliabilityCheck(position: Int, callback: (String)->Unit) {
+        _messages.value?.get(position).let {
+            chatRepository.reliabilityCheck(it?.text!!).thenAccept { result ->
+                when (result) {
+                    is Result.Error -> TODO()
+                    is Result.Success -> {
+                        runOnUiThread {
+                            _messages.value?.get(position)?.isFake = result.data.claims.isNullOrEmpty()
+                            if (result.data.claims.isNullOrEmpty()) {
+                                callback("This message does not containing news fact")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

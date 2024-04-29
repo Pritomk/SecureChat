@@ -10,5 +10,6 @@ data class MessageGist(
     val text: String? = null,
     val createdAt: Date? = null,
     val attachments: List<Attachment>? = null,
-    val replyMessage: MessageGist? = null
+    val replyMessage: MessageGist? = null,
+    var isFake: Boolean? = false
 )
